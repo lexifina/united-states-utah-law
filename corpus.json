@@ -1,0 +1,24 @@
+{
+  "corpus": "us/utah/statutes",
+  "code": "UT",
+  "name": "Utah Code",
+  "label": "Utah statutes",
+  "language": "en",
+  "history_from": "2026",
+  "record_to": "2026-10-28",
+  "record_note": "The Utah Code from the Legislature's archive of 2026-05-12 to the current code of 2026-10-28, via le.utah.gov; built 2026-10-28.",
+  "in_force_trailer": "In-force",
+  "baseline_trailer": "Consolidated",
+  "has_future_branch": false,
+  "author": "the chapter of the Laws of Utah that made the change (Law trailer)",
+  "granularity": "the effective date of each text where the code or the Laws of Utah give it; otherwise the date of the first archive that prints it",
+  "scope": {
+    "when_absent": "the code records no case-by-case scope; a chapter's application is in the Laws of Utah",
+    "default_reach": {
+      "rule": "a provision of the Utah Code is not retroactive, unless the provision is expressly declared to be retroactive",
+      "authority": "Utah Code \u00a7 68-3-3",
+      "decided_here": false
+    }
+  },
+  "tool": "tools/ut.py"
+}
