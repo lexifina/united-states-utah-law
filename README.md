@@ -1,5 +1,7 @@
 # Git for the Utah Code
 
+Part of [lexifina/global-law](https://github.com/lexifina/global-law), one git history for every country's law: this is the law of Utah, United States, which global-law reads at `united-states/utah/statutes/`.
+
 The Utah Code, section by section, as a git history from 2026-05-12 to 2026-10-28. **Each commit is a change
 taking effect**: its author is the chapter of the Laws of Utah that made it, and its date is the day the change took
 effect, wherever the Legislature's own publications give that day.
