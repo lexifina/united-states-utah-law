@@ -7,9 +7,10 @@
 
 Part of [lexifina/global-law](https://github.com/lexifina/global-law), one git history for every country's law: this is the law of Utah, United States, which global-law reads at `united-states/utah/statutes/`.
 
-The Utah Code, section by section, as a git history from 2026-05-12 to 2026-10-28. **Each commit is a change
-taking effect**: its author is the chapter of the Laws of Utah that made it, and its date is the day the change took
-effect, wherever the Legislature's own publications give that day.
+The Utah Code, section by section, as a git history from 2026-05-12 to 2026-10-28. Law commits record changed
+section text. Where the Legislature gives an effective date, the reader uses it. Otherwise it treats the first
+archive printing a text as evidence of the text on that archive date, not as proof that it took effect that day.
+Later correction commits also supply historical text and source-date corrections.
 
 | The question | The command |
 | --- | --- |
@@ -20,8 +21,8 @@ effect, wherever the Legislature's own publications give that day.
 | Everything one chapter of the Laws of Utah changed | `python tools/ut.py law "2019, ch. 16"` |
 | The most amended sections of a title | `git log --format= --name-only -- title-59 \| sort \| uniq -c \| sort -rn \| head` |
 
-`tools/ut.py` needs only Python 3 and git, and picks the text by each commit's `In-force:` date, so the answer does not
-depend on your time zone or the time of day.
+`tools/ut.py` needs only Python 3 and git. It uses `In-force:` dates, later `Redates:` corrections and dated archive
+snapshots to choose a section's recorded text on a given day.
 
 ## What is here
 
@@ -44,9 +45,11 @@ by, in order:
    section; each chapter's heading in the Laws of Utah gives its effective date ("Effective May 14, 2019"). Where the
    heading notes an exception clause, the bill's own effective-date section is read for the section in question.
    (487 texts.)
-3. **Otherwise the archive.** The first archive that prints the text, and the commit says so in its subject ("dated by
-   the archive") and its message. (2589 texts.) This covers changes made by the 2026 General
-   Session, whose Laws of Utah volume is not yet published, and texts whose history note names no new chapter.
+3. **Otherwise the archive.** The first archive that prints the text establishes a text-as-of date, not the legal
+   effective date; the commit says "dated by the archive" in its subject and message. (2589 texts.) This covers
+   changes made by the 2026 General Session, whose Laws of Utah volume is not yet published, and texts whose history
+   note names no new chapter. Later `Redates:` corrections mark 308 commits dated 2026-07-20 as having no established
+   effective date. For H.B. 539, the enrolled bill establishes May 6, 2026, and a later correction records that day.
 
 The author is the chapter named; `Law:` trailers list every chapter credited. Commits are dated at noon UTC.
 
@@ -66,7 +69,8 @@ remains incomplete.
 - **Texts between two archives.** The archives are snapshots. A section amended twice between two of them shows only
   the second text, credited to the chapters its history note names (the note lists every chapter of the latest
   session that amended it).
-- **Exact dates for every change.** See above: where no source gives the effective date, the archive date is used.
+- **Exact dates for every change.** Where no source establishes an effective date, an archive date means only that the
+  text was present by then.
 - **Future changes.** Only changes in force by 2026-10-28 are here; versions the code prints as taking effect later
   are left out.
 - **Which act repealed a section.** A section that disappears is kept as a one-line note, dated by the date the code

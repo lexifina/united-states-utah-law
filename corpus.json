@@ -11,7 +11,7 @@
   "baseline_trailer": "Consolidated",
   "has_future_branch": false,
   "author": "the chapter of the Laws of Utah that made the change (Law trailer)",
-  "granularity": "the effective date of each text where the code or the Laws of Utah give it; otherwise the date of the first archive that prints it",
+  "granularity": "the effective date where the code or the Laws of Utah gives it; otherwise the first archive printing a text establishes only a text-as-of date, subject to later Redates corrections",
   "scope": {
     "when_absent": "the code records no case-by-case scope; a chapter's application is in the Laws of Utah",
     "default_reach": {
