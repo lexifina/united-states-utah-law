@@ -8,25 +8,34 @@
                                                                  (special sessions: "2018, Special Session 3, ch. 1")
 
 A commit's date is its In-force: trailer: the day its change took effect, or, where the sources give no effective date,
-the day of the first archive that prints it (the commit says which). The text on a date is the file in the last commit
-dated on or before it, so the answer does not depend on your time zone or the time of day.
+the day of the first archive that prints it (the commit says which). A section's text on a date is selected from
+that section's latest in-force version, including historical corrections appended after newer commits.
+Restoration commits keep the tree at current text but do not supply a new effective date.
 """
 import re
 import subprocess
 import sys
+
+BASELINE_SHA = "8253d4b362de506c25a4e1c2ee841e85c6cea567"
+BASELINE_DAY = "2026-05-12"
 
 
 def git(*args):
     return subprocess.run(["git", *args], capture_output=True, text=True, encoding="utf-8", check=True).stdout
 
 
-def history():
+def history(path=None):
     fmt = "%H%x1f%ad%x1f%an%x1f%s%x1f%(trailers:key=In-force,valueonly,separator=%x2c)%x1e"
     out = []
-    for rec in git("log", "--reverse", "--date=short", "--format=" + fmt, "HEAD").split("\x1e"):
+    args = ["log", "--reverse", "--date=short", "--format=" + fmt, "HEAD"]
+    if path:
+        args += ["--", path]
+    for rec in git(*args).split("\x1e"):
         rec = rec.strip("\n")
         if rec:
             commit, authored, author, subject, in_force = rec.split("\x1f")
+            if subject.startswith(("Restore May 2026", "Restore the May 2026")):
+                continue
             out.append(((in_force.strip().split(",")[0] or authored), commit, author, subject))
     return out
 
@@ -37,12 +46,16 @@ def day(text):
     return text
 
 
-def commit_on(date):
-    hist = history()
-    chosen = [h for h in hist if h[0] <= date]
+def commit_on(date, path):
+    hist = history(path)
+    chosen = [(h[0], i, h) for i, h in enumerate(hist) if h[0] <= date]
+    # The baseline also records absence: paths missing from its tree have no
+    # path-specific git log entry, but must be absent again by this day.
+    if BASELINE_DAY <= date:
+        chosen.append((BASELINE_DAY, -1, (BASELINE_DAY, BASELINE_SHA, "", "baseline")))
     if not chosen:
-        sys.exit("%s is before this history starts (%s)." % (date, hist[0][0]))
-    return chosen[-1]
+        sys.exit("%s is before this section's recorded history." % date)
+    return max(chosen)[2]
 
 
 def main(argv):
@@ -52,7 +65,7 @@ def main(argv):
     cmd = argv[1]
     if cmd == "on" and len(argv) == 4:
         try:
-            sys.stdout.write(git("show", "%s:%s" % (commit_on(day(argv[2]))[1], argv[3])))
+            sys.stdout.write(git("show", "%s:%s" % (commit_on(day(argv[2]), argv[3])[1], argv[3])))
             return 0
         except subprocess.CalledProcessError:
             print("%s was not in the Utah Code on %s (or is before this history starts)." % (argv[3], argv[2]))
@@ -64,7 +77,7 @@ def main(argv):
             print("%s  %s  %s\n            %s" % (dates.get(commit, "?"), commit[:10], author, subject))
         return 0
     if cmd == "diff" and len(argv) in (5, 6):
-        a, b = commit_on(day(argv[2]))[1], commit_on(day(argv[3]))[1]
+        a, b = commit_on(day(argv[2]), argv[4])[1], commit_on(day(argv[3]), argv[4])[1]
         sys.stdout.write(git("diff", *(["--word-diff"] if argv[-1] == "--words" else []), a, b, "--", argv[4]))
         return 0
     if cmd == "law" and len(argv) == 3:
