@@ -11,6 +11,7 @@ A commit's date is its In-force: trailer, corrected by any later Lexifina Redate
 means the source gives no effective date; the reader keeps the version selectable from the first archive that prints
 it and shows it as text as of that day. A section's text on a date is selected from that section's latest dated or
 text-as-of version, including historical corrections appended after newer commits.
+A correction with Files: and Supersedes: replaces only the named section versions.
 Restoration commits keep the tree at current text but do not supply a new effective date.
 """
 import re
@@ -48,9 +49,30 @@ def redate_for(commit, mapping):
     return mapping.get(commit) or next((when for prefix, when in mapping.items() if commit.startswith(prefix)), "")
 
 
+def superseded(path):
+    if not path:
+        return set()
+    targets = set()
+    fmt = "%an%x1f%(trailers:only,unfold)%x1e"
+    for rec in git("log", "--format=" + fmt, "HEAD").split("\x1e"):
+        rec = rec.strip("\n")
+        if not rec:
+            continue
+        author, trailers = rec.split("\x1f", 1)
+        if author != "Lexifina" or not re.search(r"(?m)^Kind:\s*correction\s*$", trailers):
+            continue
+        files = re.findall(r"(?m)^Files:\s*(.+)$", trailers)
+        if git_path(path) not in {f.strip() for line in files for f in line.split(",")}:
+            continue
+        for line in re.findall(r"(?m)^Supersedes:\s*(.+)$", trailers):
+            targets.update(re.findall(r"\b[0-9a-f]{40}\b", line))
+    return targets
+
+
 def history(path=None):
     fmt = "%H%x1f%ad%x1f%an%x1f%s%x1f%(trailers:key=In-force,valueonly,separator=%x2c)%x1e"
     mapping = redates()
+    replaced = superseded(path)
     out = []
     args = ["log", "--reverse", "--date=short", "--format=" + fmt, "HEAD"]
     if path:
@@ -59,6 +81,8 @@ def history(path=None):
         rec = rec.strip("\n")
         if rec:
             commit, authored, author, subject, in_force = rec.split("\x1f")
+            if commit in replaced:
+                continue
             if subject.startswith(("Restore May 2026", "Restore the May 2026")):
                 continue
             recorded = in_force.strip().split(",")[0] or authored
