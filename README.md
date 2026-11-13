@@ -26,7 +26,7 @@ snapshots to choose a section's recorded text on a given day.
 
 ## What is here
 
-28391 section files in 96 titles, and 503 commits: the starting text, 78 commits
+28,391 section files in 96 titles. The original build comprised 503 commits: the starting text, 78 commits
 credited to a chapter of the Laws of Utah and dated by its effective date, 415 credited to a chapter but
 dated by the archive that first prints the text, 3 text differences that name no new chapter,
 5 commits removing repealed or renumbered sections, and the documentation. Each section is one Markdown
@@ -78,13 +78,17 @@ remains incomplete.
 - **Official status.** The Office of Legislative Research and General Counsel publishes the official Utah Code. This
   is an unofficial arrangement of its text; for anything that matters, read the code.
 
-## How it is built
+## Section corrections
 
-From le.utah.gov, within its robots.txt (one request every 10.5 seconds; it sets a crawl delay of 10). The build
-script is in [`build/`](build/), with the checksums of every response it read; it makes no network requests when it
-writes the history, and the same responses give the same commits. [REPRODUCE.md](REPRODUCE.md) records the sources,
-the commands, the software and what AI models did and did not do; [CHANGES.md](CHANGES.md) records how the history
-changes.
+Appended XML corrections repair 383 section renderings whose published paths contained neighboring or repeated
+section text. For 146 of these, `Files:` and `Supersedes:` identify the mistaken versions being replaced; the
+replacement is selected from the effective date printed in the official XML. Other sections from those published
+commits keep their original history. The section heading, provisions and history note come from the Office of
+Legislative Research and General Counsel's title XML, with 146 repairs checked against that source on 13 November
+2026. Nine further discrepancies need confirmation of their source dates or section identifiers.
+
+The original archive sources and their checksums are listed in [REPRODUCE.md](REPRODUCE.md) and
+`build/DATA-SHA256SUMS`. The section reader is [tools/ut.py](tools/ut.py).
 
 Lexifina keeps the US Code in the same form, [lexifina/united-states-law](https://github.com/lexifina/united-states-law),
 and both are part of [lexifina/global-law](https://github.com/lexifina/global-law).
@@ -95,3 +99,5 @@ Built by [Lexifina](https://lexifina.com). For corrections, open an issue.
 
 See [LICENSE.md](LICENSE.md): the Legislature claims no copyright in the code's text; the history, messages, tools and
 documentation are released under CC BY 4.0.
+
+The November 2026 section corrections and reader changes were prepared with OpenAI GPT-6. No model wrote or edited legal text.
