@@ -79,7 +79,7 @@ def commit_on(date, path):
     chosen = [(h[0], i, h) for i, h in enumerate(hist) if h[0] <= date]
     # The baseline also records absence: paths missing from its tree have no
     # path-specific git log entry, but must be absent again by this day.
-    if BASELINE_DAY <= date:
+    if not chosen and BASELINE_DAY <= date:
         chosen.append((BASELINE_DAY, -1, (BASELINE_DAY, BASELINE_DAY, BASELINE_SHA, "", "baseline")))
     if not chosen:
         sys.exit("%s is before this section's recorded history." % date)
