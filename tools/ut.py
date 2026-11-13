@@ -25,6 +25,10 @@ def git(*args):
     return subprocess.run(["git", *args], capture_output=True, text=True, encoding="utf-8", check=True).stdout
 
 
+def git_path(path):
+    return path.replace("\\", "/")
+
+
 def redates():
     fmt = "%H%x1f%an%x1f%(trailers:only,unfold)%x1e"
     out = {}
@@ -50,7 +54,7 @@ def history(path=None):
     out = []
     args = ["log", "--reverse", "--date=short", "--format=" + fmt, "HEAD"]
     if path:
-        args += ["--", path]
+        args += ["--", git_path(path)]
     for rec in git(*args).split("\x1e"):
         rec = rec.strip("\n")
         if rec:
@@ -75,6 +79,7 @@ def day(text):
 
 
 def commit_on(date, path):
+    path = git_path(path)
     hist = history(path)
     chosen = [(h[0], i, h) for i, h in enumerate(hist) if h[0] <= date]
     # The baseline also records absence: paths missing from its tree have no
@@ -92,21 +97,24 @@ def main(argv):
         return 0
     cmd = argv[1]
     if cmd == "on" and len(argv) == 4:
+        path = git_path(argv[3])
         try:
-            sys.stdout.write(git("show", "%s:%s" % (commit_on(day(argv[2]), argv[3])[2], argv[3])))
+            sys.stdout.write(git("show", "%s:%s" % (commit_on(day(argv[2]), path)[2], path)))
             return 0
         except subprocess.CalledProcessError:
             print("%s was not in the Utah Code on %s (or is before this history starts)." % (argv[3], argv[2]))
             return 1
     if cmd == "log" and len(argv) == 3:
+        path = git_path(argv[2])
         dates = {h[2]: h[1] for h in history()}
-        for line in git("log", "--reverse", "--format=%H%x1f%an%x1f%s", "--", argv[2]).splitlines():
+        for line in git("log", "--reverse", "--format=%H%x1f%an%x1f%s", "--", path).splitlines():
             commit, author, subject = line.split("\x1f")
             print("%s  %s  %s\n            %s" % (dates.get(commit, "?"), commit[:10], author, subject))
         return 0
     if cmd == "diff" and len(argv) in (5, 6):
-        a, b = commit_on(day(argv[2]), argv[4])[2], commit_on(day(argv[3]), argv[4])[2]
-        sys.stdout.write(git("diff", *(["--word-diff"] if argv[-1] == "--words" else []), a, b, "--", argv[4]))
+        path = git_path(argv[4])
+        a, b = commit_on(day(argv[2]), path)[2], commit_on(day(argv[3]), path)[2]
+        sys.stdout.write(git("diff", *(["--word-diff"] if argv[-1] == "--words" else []), a, b, "--", path))
         return 0
     if cmd == "law" and len(argv) == 3:
         sys.stdout.write(git("log", "-E", "--stat", "--format=%n%ad  %an%n  %s", "--date=short",
