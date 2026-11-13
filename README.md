@@ -50,10 +50,19 @@ by, in order:
 
 The author is the chapter named; `Law:` trailers list every chapter credited. Commits are dated at noon UTC.
 
+## Historical corrections
+
+Appended corrections record 701 earlier section versions from the official 2018
+edition, with effective dates from 2002 through 2019. The dates come from the corresponding chapters
+of the Laws of Utah or explicit dates printed in the edition. Each correction is
+followed by a commit restoring the published current tree. The reader uses the
+original published commits for current-text dates. The history before May 2026
+remains incomplete.
+
 ## What it does not show
 
-- **Before 2026-05-12.** The history starts from the oldest archive. Each section's history note still names the law
-  that last changed it before then.
+- **Before 2026-05-12.** Only the sections described under Historical corrections have earlier versions. Each
+  other section's history note still names the law that last changed it before the baseline.
 - **Texts between two archives.** The archives are snapshots. A section amended twice between two of them shows only
   the second text, credited to the chapters its history note names (the note lists every chapter of the latest
   session that amended it).
